@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptime Monitor - Configuration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .config-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        h2 {
+            color: #e2e8f0;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .label-hint {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-weight: normal;
+            margin-left: 0.5rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn {
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+        }
+        
+        .btn-primary:hover {
+             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-test {
+            background: linear-gradient(to right, #10b981, #059669);
+        }
+        
+        .btn-test:hover {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: #94a3b8;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .template-selector {
+            margin-bottom: 1rem;
+        }
+
+        .template-btn {
+            padding: 0.5rem 1rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #334155;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            border-color: #3b82f6;
+            background: #475569;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-configured { background: #10b981; }
+        .status-not-configured { background: #ef4444; }
+
+        .config-status {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #334155;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .help-text {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .help-text a {
+            color: #60a5fa;
+        }
+
+        .back-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1 1 auto;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Monitor</a>
+        
+        <div class="header">
+            <h1>⚙️ Configuration Center</h1>
+            <div class="subtitle">Configure alerts and integrations for your uptime monitor</div>
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+        <div class="alert alert-info" id="infoAlert"></div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('general')">General</button>
+            <button class="tab" onclick="switchTab('slack')">Slack</button>
+            <button class="tab" onclick="switchTab('webhook')">Custom Webhook</button>
+            <button class="tab" onclick="switchTab('email')">Email</button>
+            <button class="tab" onclick="switchTab('sms')">SMS (TextBee)</button>
+            <button class="tab" onclick="switchTab('security')">Security</button>
+        </div>
+
+        <form id="configForm">
+            <div class="tab-content active" id="general-tab">
+                <div class="config-section">
+                    <div class="section-header">
+                        <div class="section-icon">⚙️</div>
+                        <h2>General Settings</h2>
+                    </div>
+                    
+                    <div class="config-status">
+                        <h3>Current Status:</h3>
+                        <div id="generalStatus"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="alerts_enabled" name="general[alerts_enabled]" checked>
+                            <label for="alerts_enabled">Enable Alerts</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="alert_cooldown">
+                            Alert Cooldown
+                            <span class="label-hint">Minutes between alerts for same monitor</span>
+                        </label>
+                        <input type="number" id="alert_cooldown" name="general[alert_cooldown]" value="30" min="1">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="alert_hours_start">
+                                Alert Hours Start
+                                <span class="label-hint">24-hour format (empty for 24/7)</span>
+                            </label>
+                            <input type="number" id="alert_hours_start" name="general[alert_hours_start]" min="0" max="23" placeholder="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="alert_hours_end">
+                                Alert Hours End
+                                <span class="label-hint">24-hour format (empty for 24/7)</span>
+                            </label>
+                            <input type="number" id="alert_hours_end" name="general[alert_hours_end]" min="0" max="23" placeholder="24">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="slack-tab">
+                <div class="config-section">
+                    <div class="section-header">
+                        <div class="section-icon">💬</div>
+                        <h2>Slack Configuration</h2>
+                    </div>
+                    
+                    <div class="config-status">
+                        <h3>Current Status:</h3>
+                        <div id="slackStatus"></div>
+                    </div>
+                    
+                    <div class="help-text">
+                        <strong>🤖 Bot Token Setup (Recommended):</strong><br>
+                        1. Go to <a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a><br>
+                        2. Create a new app or select existing<br>
+                        3. Go to "OAuth & Permissions"<br>
+                        4. Add scopes: <code>chat:write</code>, <code>chat:write.public</code><br>
+                        5. Install to workspace and copy the Bot User OAuth Token<br>
+                        6. Invite the bot to your channel: <code>/invite @YourBotName</code>
+                    </div>
+                    
+                    <h3 style="margin: 2rem 0 1rem;">Bot Token Configuration (Recommended)</h3>
+                    
+                    <div class="form-group">
+                        <label for="slack_bot_token">
+                            Bot User OAuth Token
+                            <span class="label-hint">Starts with xoxb-</span>
+                        </label>
+                        <input type="password" id="slack_bot_token" name="slack_bot[bot_token]" placeholder="xoxb-...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="slack_bot_channel">
+                            Channel
+                            <span class="label-hint">#channel-name or Channel ID</span>
+                        </label>
+                        <input type="text" id="slack_bot_channel" name="slack_bot[channel]" placeholder="#monitoring">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="slack_bot_dashboard_url">
+                            Dashboard URL
+                            <span class="label-hint">Optional - for action buttons</span>
+                        </label>
+                        <input type="url" id="slack_bot_dashboard_url" name="slack_bot[dashboard_url]" placeholder="https://yourdomain.com/monitor/">
+                    </div>
+                    
+                    <hr style="margin: 2rem 0; border-color: #334155;">
+                    
+                    <h3 style="margin-bottom: 1rem;">Legacy Webhook Configuration</h3>
+                    
+                    <div class="form-group">
+                        <label for="slack_webhook_url">
+                            Webhook URL
+                            <span class="label-hint">Legacy incoming webhook</span>
+                        </label>
+                        <input type="url" id="slack_webhook_url" name="slack[webhook_url]" placeholder="https://hooks.slack.com/services/...">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="slack_alert_on_down" name="slack_bot[alert_on_down]" checked>
+                                <label for="slack_alert_on_down">Alert on Down</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="slack_alert_on_recovery" name="slack_bot[alert_on_recovery]" checked>
+                                <label for="slack_alert_on_recovery">Alert on Recovery</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="webhook-tab">
+                <div class="config-section">
+                    <div class="section-header">
+                        <div class="section-icon">🔗</div>
+                        <h2>Custom Webhook Configuration</h2>
+                    </div>
+                    
+                    <div class="config-status">
+                        <h3>Current Status:</h3>
+                        <div id="webhookStatus"></div>
+                    </div>
+                    
+                    <div class="template-selector">
+                        <label>Quick Templates:</label>
+                        <button type="button" class="template-btn" onclick="loadWebhookTemplate('discord')">Discord</button>
+                        <button type="button" class="template-btn" onclick="loadWebhookTemplate('teams')">MS Teams</button>
+                        <button type="button" class="template-btn" onclick="loadWebhookTemplate('telegram')">Telegram</button>
+                        <button type="button" class="template-btn" onclick="loadWebhookTemplate('pagerduty')">PagerDuty</button>
+                        <button type="button" class="template-btn" onclick="loadWebhookTemplate('custom')">Custom JSON</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="webhook_url">
+                            Webhook URL
+                            <span class="label-hint">Can include variables like {monitor_name}</span>
+                        </label>
+                        <input type="url" id="webhook_url" name="custom_webhook[url]" placeholder="https://example.com/webhook">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="webhook_method">HTTP Method</label>
+                            <select id="webhook_method" name="custom_webhook[method]">
+                                <option value="POST" selected>POST</option>
+                                <option value="GET">GET</option>
+                                <option value="PUT">PUT</option>
+                                <option value="PATCH">PATCH</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="webhook_content_type">Content Type</label>
+                            <select id="webhook_content_type" name="custom_webhook[content_type]">
+                                <option value="json" selected>JSON</option>
+                                <option value="form">Form URL-Encoded</option>
+                                <option value="xml">XML</option>
+                                <option value="plain">Plain Text</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="webhook_body">
+                            Body Template
+                            <span class="label-hint">Use variables: {monitor_name}, {status}, {monitor_url}, etc.</span>
+                        </label>
+                        <textarea id="webhook_body" name="custom_webhook[body_template]" placeholder='{"monitor": "{monitor_name}", "status": "{status}"}'></textarea>
+                    </div>
+                    
+                    <div class="help-text">
+                        <strong>Available Variables:</strong><br>
+                        {monitor_id}, {monitor_name}, {monitor_url}, {status}, {status_emoji}, {previous_status}, 
+                        {response_time}, {error_message}, {timestamp}, {timestamp_unix}, {uptime_percentage}, 
+                        {check_interval}, {last_check}, {check_count}, {status_changed}, {alert_type}
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label for="webhook_headers">
+                            Custom Headers
+                            <span class="label-hint">JSON format</span>
+                        </label>
+                        <textarea id="webhook_headers" name="custom_webhook[headers]" placeholder='{"X-API-Key": "your-key", "X-Source": "uptime-monitor"}'></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="webhook_timeout">Timeout (seconds)</label>
+                            <input type="number" id="webhook_timeout" name="custom_webhook[timeout]" value="5" min="1" max="30">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="webhook_retry_count">Retry Count</label>
+                            <input type="number" id="webhook_retry_count" name="custom_webhook[retry_count]" value="2" min="0" max="5">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="webhook_basic_auth_user">
+                                Basic Auth Username
+                                <span class="label-hint">Optional</span>
+                            </label>
+                            <input type="text" id="webhook_basic_auth_user" name="custom_webhook[basic_auth_user]">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="webhook_basic_auth_pass">
+                                Basic Auth Password
+                                <span class="label-hint">Optional</span>
+                            </label>
+                            <input type="password" id="webhook_basic_auth_pass" name="custom_webhook[basic_auth_pass]">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="webhook_alert_on_down" name="custom_webhook[alert_on_down]" checked>
+                                <label for="webhook_alert_on_down">Alert on Down</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="webhook_alert_on_recovery" name="custom_webhook[alert_on_recovery]" checked>
+                                <label for="webhook_alert_on_recovery">Alert on Recovery</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="email-tab">
+                <div class="config-section">
+                    <div class="section-header">
+                        <div class="section-icon">📧</div>
+                        <h2>Email Configuration</h2>
+                    </div>
+                    
+                    <div class="config-status">
+                        <h3>Current Status:</h3>
+                        <div id="emailStatus"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="email_enabled" name="email[enabled]">
+                            <label for="email_enabled">Enable Email Alerts</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email_recipients">
+                            Recipients
+                            <span class="label-hint">Comma-separated email addresses</span>
+                        </label>
+                        <input type="text" id="email_recipients" name="email[recipients]" placeholder="admin@example.com, alerts@example.com">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email_from_email">From Email</label>
+                            <input type="email" id="email_from_email" name="email[from_email]" placeholder="noreply@yourdomain.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email_from_name">From Name</label>
+                            <input type="text" id="email_from_name" name="email[from_name]" placeholder="Uptime Monitor">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="email_alert_on_down" name="email[alert_on_down]" checked>
+                                <label for="email_alert_on_down">Alert on Down</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="email_alert_on_recovery" name="email[alert_on_recovery]" checked>
+                                <label for="email_alert_on_recovery">Alert on Recovery</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="sms-tab">
+                <div class="config-section">
+                    <div class="section-header">
+                        <div class="section-icon">📱</div>
+                        <h2>SMS Configuration (TextBee)</h2>
+                    </div>
+                    
+                    <div class="config-status">
+                        <h3>Current Status:</h3>
+                        <div id="smsStatus"></div>
+                    </div>
+                    
+                    <div class="help-text">
+                        <strong>📱 TextBee SMS Setup:</strong><br>
+                        1. Create an account at <a href="https://textbee.dev" target="_blank">textbee.dev</a><br>
+                        2. Create a new device/gateway in your dashboard<br>
+                        3. Copy your API Key and Device ID from the device settings<br>
+                        4. Configure your phone numbers below<br><br>
+                        <strong>Note:</strong> TextBee uses your Android device as an SMS gateway. Make sure your device is connected and has SMS permissions.
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="textbee_enabled" name="textbee[enabled]">
+                            <label for="textbee_enabled">Enable SMS Alerts via TextBee</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="textbee_api_key">
+                            TextBee API Key
+                            <span class="label-hint">From your TextBee dashboard</span>
+                        </label>
+                        <input type="password" id="textbee_api_key" name="textbee[api_key]" placeholder="Your TextBee API key">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="textbee_device_id">
+                            Device ID
+                            <span class="label-hint">Your TextBee device/gateway ID</span>
+                        </label>
+                        <input type="text" id="textbee_device_id" name="textbee[device_id]" placeholder="device_12345">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="textbee_recipients">
+                            Default SMS Recipients
+                            <span class="label-hint">Comma-separated phone numbers with country codes</span>
+                        </label>
+                        <input type="text" id="textbee_recipients" name="textbee[recipients]" placeholder="+1234567890, +0987654321">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="textbee_high_priority_only" name="textbee[high_priority_only]">
+                                <label for="textbee_high_priority_only">Only send SMS for high/critical priority monitors</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="textbee_include_url" name="textbee[include_url]" checked>
+                                <label for="textbee_include_url">Include monitor URL in SMS</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="textbee_alert_on_down" name="textbee[alert_on_down]" checked>
+                                <label for="textbee_alert_on_down">Send SMS on Down</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="textbee_alert_on_recovery" name="textbee[alert_on_recovery]" checked>
+                                <label for="textbee_alert_on_recovery">Send SMS on Recovery</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-test" onclick="testSMS()">📱 Send Test SMS</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="security-tab">
+                <div class="config-section">
+                    <div class="section-header">
+                        <div class="section-icon">🔒</div>
+                        <h2>Security Configuration</h2>
+                    </div>
+                    
+                    <div class="config-status">
+                        <h3>Current Status:</h3>
+                        <div id="securityStatus"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="api_key">
+                            API Key
+                            <span class="label-hint">Leave empty for no authentication</span>
+                        </label>
+                        <input type="password" id="api_key" name="security[api_key]" placeholder="Generate a strong random key">
+                        <button type="button" class="btn btn-secondary" onclick="generateApiKey()" style="margin-top: 0.5rem;">Generate Random Key</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="allowed_ips">
+                            Allowed IP Addresses
+                            <span class="label-hint">Comma-separated, leave empty to allow all</span>
+                        </label>
+                        <input type="text" id="allowed_ips" name="security[allowed_ips]" placeholder="192.168.1.1, 10.0.0.1">
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
+                <button type="button" class="btn btn-test" onclick="testAlerts()">🧪 Test All Alerts</button>
+                <button type="button" class="btn btn-secondary" onclick="exportConfig()">📥 Export Config</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'api.php'; // UPDATE THIS TO YOUR DOMAIN
+
+        // Load configuration on page load
+        async function loadConfig() {
+            try {
+                const response = await fetch(`${API_URL}?path=config`);
+                const status = await response.json();
+                
+                updateStatus('general', status.alerts_enabled);
+                updateStatus('slack', status.slack_bot_configured || status.slack_webhook_configured);
+                updateStatus('webhook', status.webhook_configured);
+                updateStatus('email', status.email_configured);
+                updateStatus('sms', status.textbee_sms_configured);
+                updateStatus('security', status.security_enabled);
+                
+            } catch (error) {
+                showAlert('error', 'Failed to load configuration status');
+            }
+        }
+
+        // Update status indicators
+        function updateStatus(section, configured) {
+            const statusDiv = document.getElementById(section + 'Status');
+            if (statusDiv) {
+                const status = configured ? 
+                    '<span class="status-indicator status-configured"></span>Configured' :
+                    '<span class="status-indicator status-not-configured"></span>Not configured';
+                statusDiv.innerHTML = `<div class="status-item">${status}</div>`;
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // Generate random API key
+        function generateApiKey() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let key = '';
+            for (let i = 0; i < 32; i++) {
+                key += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('api_key').value = key;
+        }
+
+        // Load webhook template
+        function loadWebhookTemplate(type) {
+            const templates = {
+                discord: {
+                    url: 'https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_TOKEN',
+                    method: 'POST',
+                    content_type: 'json',
+                    body: '{"content": "{status_emoji} **{monitor_name}** is **{status}**\\n**URL:** {monitor_url}\\n**Uptime:** {uptime_percentage}%\\n**Response Time:** {response_time}ms", "username": "Uptime Monitor"}'
+                },
+                teams: {
+                    url: 'https://outlook.office.com/webhook/YOUR_WEBHOOK_URL',
+                    method: 'POST',
+                    content_type: 'json',
+                    body: '{"@type": "MessageCard", "@context": "http://schema.org/extensions", "themeColor": "{status}" == "up" ? "00FF00" : "FF0000", "summary": "Monitor {monitor_name} is {status}", "sections": [{"activityTitle": "Monitor Alert", "facts": [{"name": "Monitor", "value": "{monitor_name}"}, {"name": "Status", "value": "{status}"}, {"name": "URL", "value": "{monitor_url}"}, {"name": "Uptime", "value": "{uptime_percentage}%"}]}]}'
+                },
+                telegram: {
+                    url: 'https://api.telegram.org/botYOUR_BOT_TOKEN/sendMessage?chat_id=YOUR_CHAT_ID',
+                    method: 'POST',
+                    content_type: 'json',
+                    body: '{"text": "{status_emoji} *Monitor Alert*\\n\\n*Monitor:* {monitor_name}\\n*Status:* {status}\\n*URL:* {monitor_url}\\n*Uptime:* {uptime_percentage}%\\n*Response Time:* {response_time}ms", "parse_mode": "Markdown"}'
+                },
+                pagerduty: {
+                    url: 'https://events.pagerduty.com/v2/enqueue',
+                    method: 'POST',
+                    content_type: 'json',
+                    headers: '{"Content-Type": "application/json"}',
+                    body: '{"routing_key": "YOUR_INTEGRATION_KEY", "event_action": "{status}" == "down" ? "trigger" : "resolve", "dedup_key": "{monitor_id}", "payload": {"summary": "Monitor {monitor_name} is {status}", "source": "{monitor_url}", "severity": "{status}" == "down" ? "error" : "info", "custom_details": {"uptime": "{uptime_percentage}%", "response_time": "{response_time}ms", "error": "{error_message}"}}}'
+                },
+                custom: {
+                    url: '',
+                    method: 'POST',
+                    content_type: 'json',
+                    body: '{"monitor": "{monitor_name}", "url": "{monitor_url}", "status": "{status}", "uptime": "{uptime_percentage}%", "response_time": "{response_time}ms", "error": "{error_message}", "timestamp": "{timestamp}"}'
+                }
+            };
+            
+            const template = templates[type];
+            if (template) {
+                document.getElementById('webhook_url').value = template.url;
+                document.getElementById('webhook_method').value = template.method;
+                document.getElementById('webhook_content_type').value = template.content_type;
+                document.getElementById('webhook_body').value = template.body;
+                document.getElementById('webhook_headers').value = template.headers || '';
+                showAlert('info', `Loaded ${type} template. Update the URL and credentials.`);
+            }
+        }
+
+        // Save configuration
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const config = {};
+            
+            // Process form data into nested object
+            for (let [key, value] of formData.entries()) {
+                const matches = key.match(/([^\[]+)\[([^\]]+)\]/);
+                if (matches) {
+                    const section = matches[1];
+                    const field = matches[2];
+                    if (!config[section]) config[section] = {};
+                    
+                    // Handle checkboxes
+                    if (e.target.elements[key].type === 'checkbox') {
+                        config[section][field] = e.target.elements[key].checked ? 'true' : 'false';
+                    } else {
+                        config[section][field] = value;
+                    }
+                }
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}?path=config`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(config)
+                });
+                
+                if (response.ok) {
+                    showAlert('success', 'Configuration saved successfully!');
+                    loadConfig();
+                } else {
+                    throw new Error('Failed to save configuration');
+                }
+            } catch (error) {
+                showAlert('error', 'Failed to save configuration: ' + error.message);
+            }
+        });
+
+        // Test all alerts
+        async function testAlerts() {
+            try {
+                showAlert('info', 'Sending test alerts...');
+                const response = await fetch(`${API_URL}?path=test-alerts`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    let message = 'Test alerts sent:\n';
+                    for (let [service, status] of Object.entries(result.results)) {
+                        message += `${service}: ${status}\n`;
+                    }
+                    showAlert('success', message);
+                } else {
+                    throw new Error('Failed to send test alerts');
+                }
+            } catch (error) {
+                showAlert('error', 'Failed to send test alerts: ' + error.message);
+            }
+        }
+
+        // Test SMS specifically
+        async function testSMS() {
+            const apiKey = document.getElementById('textbee_api_key').value;
+            const deviceId = document.getElementById('textbee_device_id').value;
+            const recipients = document.getElementById('textbee_recipients').value;
+            
+            if (!apiKey || !deviceId) {
+                showAlert('error', 'Please configure TextBee API Key and Device ID first');
+                return;
+            }
+            
+            if (!recipients) {
+                showAlert('error', 'Please configure SMS recipients first');
+                return;
+            }
+            
+            try {
+                showAlert('info', 'Sending test SMS...');
+                const response = await fetch(`${API_URL}?path=test-sms`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        custom_message: 'Configuration test from Uptime Monitor dashboard'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    showAlert('success', `Test SMS sent successfully to ${result.recipients.length} recipient(s)!`);
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Failed to send test SMS');
+                }
+            } catch (error) {
+                showAlert('error', 'Failed to send test SMS: ' + error.message);
+            }
+        }
+
+        // Export configuration
+        function exportConfig() {
+            // Create a download link for the config
+            const configText = JSON.stringify({
+                note: "Configuration export from Uptime Monitor",
+                timestamp: new Date().toISOString(),
+                message: "Import this configuration by copying the settings to your config.ini file"
+            }, null, 2);
+            
+            const blob = new Blob([configText], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'uptime_config_export.json';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showAlert('info', 'Configuration template exported. Note: Sensitive data like API keys are not included for security.');
+        }
+
+        // Show alert message
+        function showAlert(type, message) {
+            const alertEl = document.getElementById(type + 'Alert');
+            alertEl.textContent = message;
+            alertEl.style.display = 'block';
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadConfig();
+        });
+    </script>
+</body>
+</html>

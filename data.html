@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management - Uptime Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 2.5rem);
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .back-link {
+            color: #e2e8f0;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+        }
+
+        .btn {
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-success {
+            background: #10b981;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #64748b;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .data-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        .data-table th {
+            background: #334155;
+            font-weight: 600;
+            color: #e2e8f0;
+            position: sticky;
+            top: 0;
+        }
+
+        .data-table td {
+            color: #94a3b8;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .status-up { color: #10b981; font-weight: 600; }
+        .status-down { color: #ef4444; font-weight: 600; }
+        .status-unknown { color: #f59e0b; font-weight: 600; }
+
+        .monitor-selector {
+            margin-bottom: 1rem;
+        }
+
+        .monitor-selector select {
+            width: 100%;
+            max-width: 400px;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .monitor-selector select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.active {
+            display: block;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .actions-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-info {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            margin-bottom: 1rem;
+        }
+
+        .file-path {
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #60a5fa;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .file-size {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            border-radius: 3px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .log-viewer {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            line-height: 1.4;
+        }
+
+        .log-line {
+            margin-bottom: 0.25rem;
+            padding: 0.25rem 0;
+        }
+
+        .log-timestamp {
+            color: #64748b;
+        }
+
+        .log-success {
+            color: #10b981;
+        }
+
+        .log-error {
+            color: #ef4444;
+        }
+
+        .log-warning {
+            color: #f59e0b;
+        }
+
+        .table-container {
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #334155;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .refresh-btn {
+            margin-left: auto;
+        }
+
+        .dangerous-action {
+            border: 1px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .dangerous-action h4 {
+            color: #ef4444;
+            margin-bottom: 0.5rem;
+        }
+
+        .dangerous-action p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+
+            .section-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-table {
+                font-size: 0.875rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem 0.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.5rem 0.25rem;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+        
+        <div class="header">
+            <h1>📊 Data Management</h1>
+            <button class="btn btn-secondary refresh-btn" onclick="refreshAllData()">
+                <span id="refreshIcon">🔄</span> Refresh All
+            </button>
+        </div>
+
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
+        <div class="alert alert-info" id="infoAlert"></div>
+        <div class="alert alert-warning" id="warningAlert"></div>
+
+        <!-- Storage Overview -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">
+                    💾 Storage Overview
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="loadStorageStats()">
+                    <span class="loading" id="storageLoading" style="display: none;">
+                        <span class="spinner"></span> Loading...
+                    </span>
+                    <span id="storageRefreshText">🔄 Refresh</span>
+                </button>
+            </div>
+            
+            <div class="stats-grid" id="storageStats">
+                <div class="stat-card">
+                    <div class="stat-value">Loading...</div>
+                    <div class="stat-label">Calculating...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monitor Data -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">
+                    📈 Monitor Check Data
+                </div>
+            </div>
+            
+            <div class="monitor-selector">
+                <label for="monitorSelect">Select Monitor:</label>
+                <select id="monitorSelect" onchange="onMonitorChange()">
+                    <option value="">Select a monitor...</option>
+                </select>
+            </div>
+            
+            <div class="actions-bar">
+                <button class="btn btn-primary btn-sm" onclick="loadChecksData()">🔍 View Checks</button>
+                <button class="btn btn-warning btn-sm" onclick="clearOldChecks()">🧹 Clear Old Data (>90 days)</button>
+                <button class="btn btn-danger btn-sm" onclick="clearAllChecks()">🗑️ Clear All Checks</button>
+                <button class="btn btn-success btn-sm" onclick="exportChecks()">📥 Export Data</button>
+            </div>
+            
+            <div id="checksContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <p>Select a monitor to view check data</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Log Files -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">
+                    📋 System Logs
+                </div>
+            </div>
+            
+            <div class="actions-bar">
+                <button class="btn btn-primary btn-sm" onclick="loadAlertLogs()">🔔 View Alert Logs</button>
+                <button class="btn btn-warning btn-sm" onclick="clearAlertLogs()">🧹 Clear Alert Logs</button>
+                <button class="btn btn-success btn-sm" onclick="downloadLogs()">📥 Download Logs</button>
+            </div>
+            
+            <div id="logsContainer">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <p>Click "View Alert Logs" to load system logs</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Maintenance -->
+        <div class="data-section">
+            <div class="section-header">
+                <div class="section-title">
+                    🔧 Database Maintenance
+                </div>
+            </div>
+            
+            <div class="actions-bar">
+                <button class="btn btn-primary btn-sm" onclick="optimizeDatabase()">⚡ Optimize Storage</button>
+                <button class="btn btn-success btn-sm" onclick="exportAllData()">📤 Full Backup</button>
+                <button class="btn btn-secondary btn-sm" onclick="showHealthCheck()">🏥 Health Check</button>
+            </div>
+            
+            <div id="maintenanceResults">
+                <div class="empty-state">
+                    <div class="empty-state-icon">🔧</div>
+                    <p>Use the maintenance tools above to optimize your database</p>
+                </div>
+            </div>
+
+            <div class="dangerous-action">
+                <h4>⚠️ Dangerous Operations</h4>
+                <p>These operations cannot be undone. Please ensure you have backups before proceeding.</p>
+                <div class="actions-bar">
+                    <button class="btn btn-danger btn-sm" onclick="resetAllData()">💥 Reset All Data</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = 'api.php'; // UPDATE THIS TO MATCH YOUR SETUP
+        let monitors = [];
+        let currentMonitorChecks = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStorageStats();
+            loadMonitors();
+        });
+
+        // Refresh all data
+        async function refreshAllData() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.style.animation = 'spin 1s linear infinite';
+            
+            await Promise.all([
+                loadStorageStats(),
+                loadMonitors()
+            ]);
+            
+            refreshIcon.style.animation = '';
+            showAlert('success', 'All data refreshed successfully');
+        }
+
+        // Load storage statistics
+        async function loadStorageStats() {
+            const loadingEl = document.getElementById('storageLoading');
+            const textEl = document.getElementById('storageRefreshText');
+            
+            if (loadingEl && textEl) {
+                loadingEl.style.display = 'flex';
+                textEl.style.display = 'none';
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?path=storage-stats`);
+                if (!response.ok) throw new Error('Failed to fetch storage stats');
+                
+                const stats = await response.json();
+                
+                const statsHtml = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.monitors_count}</div>
+                        <div class="stat-label">Total Monitors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total_checks.toLocaleString()}</div>
+                        <div class="stat-label">Total Check Records</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${formatBytes(stats.storage_size_bytes)}</div>
+                        <div class="stat-label">Storage Used</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.oldest_check ? formatDate(stats.oldest_check) : 'N/A'}</div>
+                        <div class="stat-label">Oldest Data</div>
+                    </div>
+                `;
+                
+                document.getElementById('storageStats').innerHTML = statsHtml;
+                
+            } catch (error) {
+                console.error('Error loading storage stats:', error);
+                showAlert('error', 'Failed to load storage statistics');
+                
+                // Show error state
+                document.getElementById('storageStats').innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value" style="color: #ef4444;">Error</div>
+                        <div class="stat-label">Failed to load</div>
+                    </div>
+                `;
+            } finally {
+                if (loadingEl && textEl) {
+                    loadingEl.style.display = 'none';
+                    textEl.style.display = 'inline';
+                }
+            }
+        }
+
+        // Load monitors for selector
+        async function loadMonitors() {
+            try {
+                const response = await fetch(`${API_URL}?path=monitors`);
+                if (!response.ok) throw new Error('Failed to fetch monitors');
+                
+                monitors = await response.json();
+                const select = document.getElementById('monitorSelect');
+                
+                select.innerHTML = '<option value="">Select a monitor...</option>';
+                monitors.forEach(monitor => {
+                    const checkType = monitor.config?.check_type || 'http';
+                    select.innerHTML += `<option value="${monitor.id}">${monitor.name} (${checkType.toUpperCase()})</option>`;
+                });
+                
+            } catch (error) {
+                console.error('Error loading monitors:', error);
+                showAlert('error', 'Failed to load monitors');
+            }
+        }
+
+        // Handle monitor selection change
+        function onMonitorChange() {
+            const monitorId = document.getElementById('monitorSelect').value;
+            if (monitorId) {
+                loadChecksData();
+            } else {
+                document.getElementById('checksContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>Select a monitor to view check data</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load checks data for selected monitor
+        async function loadChecksData() {
+            const monitorId = document.getElementById('monitorSelect').value;
+            if (!monitorId) {
+                showAlert('error', 'Please select a monitor first');
+                return;
+            }
+            
+            const monitor = monitors.find(m => m.id === monitorId);
+            if (!monitor) return;
+            
+            document.getElementById('checksContainer').innerHTML = `
+                <div class="loading" style="justify-content: center; padding: 2rem;">
+                    <span class="spinner"></span> Loading check data...
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${API_URL}?path=debug/checks&monitor_id=${monitorId}`);
+                if (!response.ok) throw new Error('Failed to fetch checks');
+                
+                const data = await response.json();
+                currentMonitorChecks = data.recent_checks || [];
+                
+                let html = `
+                    <div class="file-info">
+                        <div class="file-path">Monitor: ${monitor.name}</div>
+                        <div class="file-size">
+                            Total Checks: ${data.total_checks.toLocaleString()} | 
+                            Check Type: ${(monitor.config?.check_type || 'http').toUpperCase()} |
+                            Showing: Last ${currentMonitorChecks.length} checks
+                        </div>
+                    </div>
+                `;
+                
+                if (currentMonitorChecks.length > 0) {
+                    html += `
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                        <th>Response Time</th>
+                                        <th>HTTP Code</th>
+                                        <th>Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+                    
+                    currentMonitorChecks.forEach(check => {
+                        html += `
+                            <tr>
+                                <td>${check.time}</td>
+                                <td class="status-${check.status}">${check.status.toUpperCase()}</td>
+                                <td>${check.response_time ? check.response_time + 'ms' : '-'}</td>
+                                <td>${check.http_code || '-'}</td>
+                                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${check.error || ''}">${check.error || '-'}</td>
+                            </tr>
+                        `;
+                    });
+                    
+                    html += '</tbody></table></div>';
+                } else {
+                    html += `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📊</div>
+                            <p>No check data available for this monitor</p>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('checksContainer').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading checks:', error);
+                showAlert('error', 'Failed to load check data');
+                document.getElementById('checksContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon" style="color: #ef4444;">❌</div>
+                        <p>Failed to load check data</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Clear old checks (>90 days)
+        async function clearOldChecks() {
+            const monitorId = document.getElementById('monitorSelect').value;
+            if (!monitorId) {
+                showAlert('error', 'Please select a monitor first');
+                return;
+            }
+            
+            if (!confirm('This will delete check data older than 90 days. Continue?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}?path=monitors/${monitorId}/checks/old`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to clear old checks');
+                
+                const result = await response.json();
+                showAlert('success', result.message || 'Old check data cleared successfully');
+                
+                // Refresh the display
+                loadChecksData();
+                loadStorageStats();
+                
+            } catch (error) {
+                console.error('Error clearing old checks:', error);
+                showAlert('error', 'Failed to clear old data');
+            }
+        }
+
+        // Clear all checks for selected monitor
+        async function clearAllChecks() {
+            const monitorId = document.getElementById('monitorSelect').value;
+            if (!monitorId) {
+                showAlert('error', 'Please select a monitor first');
+                return;
+            }
+            
+            const monitor = monitors.find(m => m.id === monitorId);
+            if (!confirm(`This will delete ALL check data for "${monitor.name}". This cannot be undone!\n\nType the monitor name to confirm:`)) return;
+            
+            const confirmation = prompt(`Type "${monitor.name}" to confirm deletion:`);
+            if (confirmation !== monitor.name) {
+                showAlert('warning', 'Deletion cancelled - monitor name did not match');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}?path=monitors/${monitorId}/checks`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to clear all checks');
+                
+                const result = await response.json();
+                showAlert('success', result.message || 'All check data cleared successfully');
+                
+                // Refresh the display
+                loadChecksData();
+                loadStorageStats();
+                
+            } catch (error) {
+                console.error('Error clearing all checks:', error);
+                showAlert('error', 'Failed to clear all data');
+            }
+        }
+
+        // Export checks data
+        async function exportChecks() {
+            const monitorId = document.getElementById('monitorSelect').value;
+            if (!monitorId) {
+                showAlert('error', 'Please select a monitor first');
+                return;
+            }
+            
+            const monitor = monitors.find(m => m.id === monitorId);
+            if (!monitor) return;
+            
+            try {
+                const response = await fetch(`${API_URL}?path=debug/checks&monitor_id=${monitorId}`);
+                if (!response.ok) throw new Error('Failed to fetch checks');
+                
+                const data = await response.json();
+                
+                // Create CSV content
+                let csv = 'Time,Status,Response Time (ms),HTTP Code,Error\n';
+                data.recent_checks.forEach(check => {
+                    csv += `"${check.time}","${check.status}","${check.response_time || ''}","${check.http_code || ''}","${(check.error || '').replace(/"/g, '""')}"\n`;
+                });
+                
+                // Download CSV
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${monitor.name.replace(/[^a-z0-9]/gi, '_')}_checks_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showAlert('success', 'Check data exported successfully');
+                
+            } catch (error) {
+                console.error('Error exporting checks:', error);
+                showAlert('error', 'Failed to export data');
+            }
+        }
+
+        // Load alert logs
+        async function loadAlertLogs() {
+            document.getElementById('logsContainer').innerHTML = `
+                <div class="loading" style="justify-content: center; padding: 2rem;">
+                    <span class="spinner"></span> Loading alert logs...
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`${API_URL}?path=logs`);
+                if (!response.ok) throw new Error('Failed to fetch logs');
+                
+                const data = await response.json();
+                
+                let html = `
+                    <div class="file-info">
+                        <div class="file-path">alerts.log</div>
+                        <div class="file-size">
+                            Size: ${formatBytes(data.size)} | 
+                            Lines: ${data.lines.toLocaleString()}
+                        </div>
+                    </div>
+                `;
+                
+                if (data.logs && data.logs.trim()) {
+                    // Parse and format log lines
+                    const logLines = data.logs.trim().split('\n');
+                    html += '<div class="log-viewer">';
+                    
+                    logLines.slice(-100).reverse().forEach(line => { // Show last 100 lines, newest first
+                        if (line.trim()) {
+                            const formattedLine = formatLogLine(line);
+                            html += `<div class="log-line">${formattedLine}</div>`;
+                        }
+                    });
+                    
+                    html += '</div>';
+                    
+                    if (logLines.length > 100) {
+                        html += `<p style="text-align: center; color: #64748b; margin-top: 1rem; font-size: 0.875rem;">
+                            Showing last 100 entries (${logLines.length} total)
+                        </p>`;
+                    }
+                } else {
+                    html += `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>No alert logs found</p>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('logsContainer').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading alert logs:', error);
+                showAlert('error', 'Failed to load alert logs');
+                document.getElementById('logsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon" style="color: #ef4444;">❌</div>
+                        <p>Failed to load alert logs</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Format log line with colors
+        function formatLogLine(line) {
+            // Parse log format: "2024-01-01 12:00:00 | Type | Monitor | Status | Result | Details"
+            const parts = line.split(' | ');
+            if (parts.length >= 5) {
+                const timestamp = parts[0];
+                const type = parts[1];
+                const monitor = parts[2];
+                const status = parts[3];
+                const result = parts[4];
+                const details = parts.slice(5).join(' | ');
+                
+                let statusClass = '';
+                if (result.includes('SUCCESS')) statusClass = 'log-success';
+                else if (result.includes('FAILED')) statusClass = 'log-error';
+                else statusClass = 'log-warning';
+                
+                return `
+                    <span class="log-timestamp">${timestamp}</span> | 
+                    <strong>${type}</strong> | 
+                    ${monitor} | 
+                    ${status} | 
+                    <span class="${statusClass}">${result}</span>
+                    ${details ? ' | ' + details : ''}
+                `;
+            }
+            return line;
+        }
+
+        // Clear alert logs
+        async function clearAlertLogs() {
+            if (!confirm('This will clear all alert logs. Continue?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}?path=logs`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Failed to clear logs');
+                
+                const result = await response.json();
+                showAlert('success', result.message || 'Alert logs cleared successfully');
+                
+                // Refresh logs display
+                loadAlertLogs();
+                
+            } catch (error) {
+                console.error('Error clearing alert logs:', error);
+                showAlert('error', 'Failed to clear alert logs');
+            }
+        }
+
+        // Download logs
+        async function downloadLogs() {
+            try {
+                const response = await fetch(`${API_URL}?path=logs`);
+                if (!response.ok) throw new Error('Failed to fetch logs');
+                
+                const data = await response.json();
+                
+                if (!data.logs || !data.logs.trim()) {
+                    showAlert('warning', 'No logs available to download');
+                    return;
+                }
+                
+                // Download logs as text file
+                const blob = new Blob([data.logs], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `uptime_monitor_alerts_${new Date().toISOString().split('T')[0]}.log`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                showAlert('success', 'Alert logs downloaded successfully');
+                
+            } catch (error) {
+                console.error('Error downloading logs:', error);
+                showAlert('error', 'Failed to download logs');
+            }
+        }
+
+        // Optimize database
+        async function optimizeDatabase() {
+            if (!confirm('This will optimize storage by removing old data and compacting files. Continue?')) return;
+            
+            try {
+                showAlert('info', 'Starting database optimization...');
+                
+                // Show progress
+                document.getElementById('maintenanceResults').innerHTML = `
+                    <div class="file-info">
+                        <div class="file-path">Optimization in progress...</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="optimizeProgress"></div>
+                        </div>
+                    </div>
+                `;
+                
+                // Animate progress
+                let progress = 0;
+                const progressEl = document.getElementById('optimizeProgress');
+                const progressInterval = setInterval(() => {
+                    progress += Math.random() * 20;
+                    if (progress > 90) progress = 90;
+                    progressEl.style.width = progress + '%';
+                }, 200);
+                
+                const response = await fetch(`${API_URL}?path=cleanup`, {
+                    method: 'POST'
+                });
+                
+                clearInterval(progressInterval);
+                progressEl.style.width = '100%';
+                
+                if (!response.ok) throw new Error('Failed to optimize database');
+                
+                const result = await response.json();
+                
+                let resultsHtml = `
+                    <div class="file-info">
+                        <div class="file-path">✅ Optimization completed successfully</div>
+                        <div class="file-size">
+                            Removed ${result.total_checks_removed} old check records |
+                            Cleaned ${result.empty_files_removed} empty files |
+                            Removed ${result.old_cooldowns_removed} old cooldown files
+                        </div>
+                    </div>
+                `;
+                
+                if (result.details && result.details.length > 0) {
+                    resultsHtml += '<div class="log-viewer">';
+                    result.details.forEach(detail => {
+                        resultsHtml += `<div class="log-line log-success">${detail}</div>`;
+                    });
+                    resultsHtml += '</div>';
+                }
+                
+                document.getElementById('maintenanceResults').innerHTML = resultsHtml;
+                showAlert('success', 'Database optimization completed!');
+                
+                // Refresh storage stats
+                loadStorageStats();
+                
+            } catch (error) {
+                console.error('Error optimizing database:', error);
+                showAlert('error', 'Failed to optimize database');
+                document.getElementById('maintenanceResults').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon" style="color: #ef4444;">❌</div>
+                        <p>Optimization failed</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Show health check
+        async function showHealthCheck() {
+            try {
+                showAlert('info', 'Running health check...');
+                
+                const response = await fetch(`${API_URL}?path=health`);
+                if (!response.ok) throw new Error('Failed to get health status');
+                
+                const health = await response.json();
+                
+                let statusColor = health.status === 'healthy' ? '#10b981' : '#ef4444';
+                let statusIcon = health.status === 'healthy' ? '✅' : '❌';
+                
+                let resultsHtml = `
+                    <div class="file-info">
+                        <div class="file-path">${statusIcon} System Health: ${health.status.toUpperCase()}</div>
+                        <div class="file-size" style="color: ${statusColor};">
+                            Monitors: ${health.monitors_count} | 
+                            Last Updated: ${health.timestamp}
+                        </div>
+                    </div>
+                `;
+                
+                if (health.errors && health.errors.length > 0) {
+                    resultsHtml += '<div class="log-viewer">';
+                    health.errors.forEach(error => {
+                        resultsHtml += `<div class="log-line log-error">❌ ${error}</div>`;
+                    });
+                    resultsHtml += '</div>';
+                } else {
+                    resultsHtml += `
+                        <div class="log-viewer">
+                            <div class="log-line log-success">✅ All systems operational</div>
+                            <div class="log-line log-success">✅ Data directories writable</div>
+                            <div class="log-line log-success">✅ Monitoring active</div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('maintenanceResults').innerHTML = resultsHtml;
+                
+                if (health.status === 'healthy') {
+                    showAlert('success', 'System health check passed');
+                } else {
+                    showAlert('warning', 'System health check found issues');
+                }
+                
+            } catch (error) {
+                console.error('Error running health check:', error);
+                showAlert('error', 'Failed to run health check');
+            }
+        }
+
+        // Export all data
+        async function exportAllData() {
+            if (!confirm('This will create a full backup of all monitor data. Continue?')) return;
+            
+            try {
+                showAlert('info', 'Creating full backup...');
+                
+                // Open export endpoint
+                window.open(`${API_URL}?path=export`, '_blank');
+                
+                showAlert('success', 'Backup export started! Check your downloads.');
+                
+            } catch (error) {
+                console.error('Error exporting all data:', error);
+                showAlert('error', 'Failed to create backup');
+            }
+        }
+
+        // Reset all data
+        async function resetAllData() {
+            showAlert('warning', 'This is a DESTRUCTIVE operation that will delete ALL monitoring data!');
+            
+            const confirmation1 = prompt('This will DELETE ALL MONITOR DATA permanently!\n\nType "I UNDERSTAND" to continue:');
+            if (confirmation1 !== 'I UNDERSTAND') {
+                showAlert('info', 'Reset cancelled');
+                return;
+            }
+            
+            const confirmation2 = prompt('Final confirmation. Type "DELETE ALL DATA" to proceed:');
+            if (confirmation2 !== 'DELETE ALL DATA') {
+                showAlert('info', 'Reset cancelled');
+                return;
+            }
+            
+            try {
+                showAlert('error', 'Initiating data reset...');
+                
+                const response = await fetch(`${API_URL}?path=reset-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        confirmation: 'DELETE ALL DATA'
+                    })
+                });
+                
+                if (!response.ok) throw new Error('Failed to reset data');
+                
+                const result = await response.json();
+                showAlert('success', 'All data has been reset successfully');
+                
+                // Refresh all displays
+                setTimeout(() => {
+                    refreshAllData();
+                }, 1000);
+                
+            } catch (error) {
+                console.error('Error resetting data:', error);
+                showAlert('error', 'Failed to reset data');
+            }
+        }
+
+        // Utility functions
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(timestamp) {
+            return new Date(timestamp * 1000).toLocaleDateString();
+        }
+
+        function showAlert(type, message) {
+            const alertEl = document.getElementById(type + 'Alert');
+            if (!alertEl) return;
+            
+            alertEl.textContent = message;
+            alertEl.classList.add('active');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alertEl.classList.remove('active');
+            }, 5000);
+            
+            // Scroll to top to show alert
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
