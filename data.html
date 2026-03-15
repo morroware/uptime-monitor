@@ -1,10 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Management - Uptime Monitor</title>
     <style>
+        :root {
+            --bg0: #0f172a;
+            --bg1: #1e293b;
+            --panel: #1f2937;
+            --muted: #94a3b8;
+            --text: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-2: #8b5cf6;
+            --ok: #10b981;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            --border: rgba(255,255,255,.1);
+            --shadow: rgba(0,0,0,.3);
+        }
+        html[data-theme="light"] {
+            --bg0: #f8fafc;
+            --bg1: #eef2f7;
+            --panel: #ffffff;
+            --muted: #475569;
+            --text: #0f172a;
+            --primary: #2563eb;
+            --primary-2: #7c3aed;
+            --ok: #059669;
+            --warn: #d97706;
+            --bad: #dc2626;
+            --border: rgba(0,0,0,.08);
+            --shadow: rgba(0,0,0,.1);
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+        html[data-theme="light"] .main-nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: rgba(0,0,0,0.08);
+        }
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            height: 56px;
+        }
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        .nav-link {
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+        html[data-theme="light"] .nav-link:hover { background: rgba(0,0,0,0.04); color: #0f172a; }
+        .nav-link.active { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        html[data-theme="light"] .nav-link.active { background: rgba(37,99,235,0.1); color: #2563eb; }
+        .nav-theme-toggle {
+            margin-left: auto;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .nav-theme-toggle:hover { background: rgba(255,255,255,0.06); }
+        html[data-theme="light"] .nav-theme-toggle { border-color: rgba(0,0,0,0.1); color: #475569; }
+        html[data-theme="light"] .nav-theme-toggle:hover { background: rgba(0,0,0,0.04); }
+        .theme-icon-light { display: none; }
+        html[data-theme="light"] .theme-icon-dark { display: none; }
+        html[data-theme="light"] .theme-icon-light { display: inline; }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,8 +108,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
+            background-color: var(--bg0);
+            color: var(--text);
             min-height: 100vh;
             padding: 20px;
         }
@@ -41,7 +136,7 @@
         }
 
         .back-link {
-            color: #e2e8f0;
+            color: var(--text);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -89,7 +184,7 @@
         }
 
         .btn-danger {
-            background: #ef4444;
+            background: var(--bad);
         }
 
         .btn-danger:hover:not(:disabled) {
@@ -97,7 +192,7 @@
         }
 
         .btn-warning {
-            background: #f59e0b;
+            background: var(--warn);
         }
 
         .btn-warning:hover:not(:disabled) {
@@ -105,7 +200,7 @@
         }
 
         .btn-success {
-            background: #10b981;
+            background: var(--ok);
         }
 
         .btn-success:hover:not(:disabled) {
@@ -113,7 +208,7 @@
         }
 
         .btn-secondary {
-            background: #64748b;
+            background: var(--muted);
         }
 
         .btn-secondary:hover:not(:disabled) {
@@ -126,11 +221,11 @@
         }
 
         .data-section {
-            background: #1e293b;
+            background: var(--bg1);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px var(--shadow);
             animation: slideIn 0.5s ease-out;
         }
 
@@ -151,7 +246,7 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
             flex-wrap: wrap;
             gap: 1rem;
         }
@@ -159,7 +254,7 @@
         .section-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #e2e8f0;
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -173,10 +268,10 @@
         }
 
         .stat-card {
-            background: #0f172a;
+            background: var(--bg0);
             padding: 1.5rem;
             border-radius: 8px;
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
@@ -188,12 +283,12 @@
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
-            color: #3b82f6;
+            color: var(--primary);
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: #94a3b8;
+            color: var(--muted);
             font-size: 0.875rem;
         }
 
@@ -201,7 +296,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 1rem;
-            background: #0f172a;
+            background: var(--bg0);
             border-radius: 8px;
             overflow: hidden;
         }
@@ -210,28 +305,28 @@
         .data-table td {
             padding: 1rem;
             text-align: left;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
         }
 
         .data-table th {
-            background: #334155;
+            background: var(--bg1);
             font-weight: 600;
-            color: #e2e8f0;
+            color: var(--text);
             position: sticky;
             top: 0;
         }
 
         .data-table td {
-            color: #94a3b8;
+            color: var(--muted);
         }
 
         .data-table tbody tr:hover {
             background: rgba(59, 130, 246, 0.1);
         }
 
-        .status-up { color: #10b981; font-weight: 600; }
-        .status-down { color: #ef4444; font-weight: 600; }
-        .status-unknown { color: #f59e0b; font-weight: 600; }
+        .status-up { color: var(--ok); font-weight: 600; }
+        .status-down { color: var(--bad); font-weight: 600; }
+        .status-unknown { color: var(--warn); font-weight: 600; }
 
         .monitor-selector {
             margin-bottom: 1rem;
@@ -241,17 +336,17 @@
             width: 100%;
             max-width: 400px;
             padding: 0.75rem;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: var(--bg0);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: #e2e8f0;
+            color: var(--text);
             font-size: 1rem;
             transition: border-color 0.2s;
         }
 
         .monitor-selector select:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: var(--primary);
         }
 
         .alert {
@@ -280,25 +375,25 @@
         .alert-success {
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #10b981;
+            color: var(--ok);
         }
 
         .alert-error {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            color: var(--bad);
         }
 
         .alert-info {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #3b82f6;
+            color: var(--primary);
         }
 
         .alert-warning {
             background: rgba(245, 158, 11, 0.1);
             border: 1px solid rgba(245, 158, 11, 0.3);
-            color: #f59e0b;
+            color: var(--warn);
         }
 
         .actions-bar {
@@ -310,10 +405,10 @@
         }
 
         .file-info {
-            background: #0f172a;
+            background: var(--bg0);
             padding: 1rem;
             border-radius: 8px;
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
             margin-bottom: 1rem;
         }
 
@@ -325,14 +420,14 @@
         }
 
         .file-size {
-            color: #94a3b8;
+            color: var(--muted);
             font-size: 0.875rem;
         }
 
         .progress-bar {
             width: 100%;
             height: 6px;
-            background: #334155;
+            background: var(--border);
             border-radius: 3px;
             overflow: hidden;
             margin: 1rem 0;
@@ -347,8 +442,8 @@
         }
 
         .log-viewer {
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: var(--bg0);
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 1rem;
             max-height: 400px;
@@ -365,32 +460,32 @@
         }
 
         .log-timestamp {
-            color: #64748b;
+            color: var(--muted);
         }
 
         .log-success {
-            color: #10b981;
+            color: var(--ok);
         }
 
         .log-error {
-            color: #ef4444;
+            color: var(--bad);
         }
 
         .log-warning {
-            color: #f59e0b;
+            color: var(--warn);
         }
 
         .table-container {
             max-height: 500px;
             overflow-y: auto;
             border-radius: 8px;
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
         }
 
         .empty-state {
             text-align: center;
             padding: 3rem;
-            color: #64748b;
+            color: var(--muted);
         }
 
         .empty-state-icon {
@@ -408,8 +503,8 @@
         .spinner {
             width: 16px;
             height: 16px;
-            border: 2px solid #334155;
-            border-top: 2px solid #3b82f6;
+            border: 2px solid var(--border);
+            border-top: 2px solid var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -424,7 +519,7 @@
         }
 
         .dangerous-action {
-            border: 1px solid #ef4444;
+            border: 1px solid var(--bad);
             background: rgba(239, 68, 68, 0.1);
             padding: 1rem;
             border-radius: 8px;
@@ -432,14 +527,23 @@
         }
 
         .dangerous-action h4 {
-            color: #ef4444;
+            color: var(--bad);
             margin-bottom: 0.5rem;
         }
 
         .dangerous-action p {
-            color: #94a3b8;
+            color: var(--muted);
             font-size: 0.875rem;
             margin-bottom: 1rem;
+        }
+
+        .app-footer {
+            text-align: center;
+            padding: 24px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.85rem;
         }
 
         @media (max-width: 768px) {
@@ -494,13 +598,27 @@
     </style>
 </head>
 <body>
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">Uptime Monitor</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="status.php" class="nav-link">Status</a>
+                <a href="config.html" class="nav-link">Settings</a>
+                <a href="data.html" class="nav-link active">Data</a>
+            </div>
+            <button class="nav-theme-toggle" id="themeToggle" title="Toggle theme">
+                <span class="theme-icon-dark">&#9789;</span>
+                <span class="theme-icon-light">&#9788;</span>
+            </button>
+        </div>
+    </nav>
+
     <div class="container">
-        <a href="index.html" class="back-link">← Back to Dashboard</a>
-        
         <div class="header">
-            <h1>📊 Data Management</h1>
+            <h1>Data Management</h1>
             <button class="btn btn-secondary refresh-btn" onclick="refreshAllData()">
-                <span id="refreshIcon">🔄</span> Refresh All
+                <span id="refreshIcon">Refresh All</span>
             </button>
         </div>
 
@@ -513,13 +631,13 @@
         <div class="data-section">
             <div class="section-header">
                 <div class="section-title">
-                    💾 Storage Overview
+                    Storage Overview
                 </div>
                 <button class="btn btn-primary btn-sm" onclick="loadStorageStats()">
                     <span class="loading" id="storageLoading" style="display: none;">
                         <span class="spinner"></span> Loading...
                     </span>
-                    <span id="storageRefreshText">🔄 Refresh</span>
+                    <span id="storageRefreshText">Refresh</span>
                 </button>
             </div>
             
@@ -535,7 +653,7 @@
         <div class="data-section">
             <div class="section-header">
                 <div class="section-title">
-                    📈 Monitor Check Data
+                    Monitor Check Data
                 </div>
             </div>
             
@@ -547,15 +665,15 @@
             </div>
             
             <div class="actions-bar">
-                <button class="btn btn-primary btn-sm" onclick="loadChecksData()">🔍 View Checks</button>
-                <button class="btn btn-warning btn-sm" onclick="clearOldChecks()">🧹 Clear Old Data (>90 days)</button>
-                <button class="btn btn-danger btn-sm" onclick="clearAllChecks()">🗑️ Clear All Checks</button>
-                <button class="btn btn-success btn-sm" onclick="exportChecks()">📥 Export Data</button>
+                <button class="btn btn-primary btn-sm" onclick="loadChecksData()">View Checks</button>
+                <button class="btn btn-warning btn-sm" onclick="clearOldChecks()">Clear Old Data (>90 days)</button>
+                <button class="btn btn-danger btn-sm" onclick="clearAllChecks()">Clear All Checks</button>
+                <button class="btn btn-success btn-sm" onclick="exportChecks()">Export Data</button>
             </div>
             
             <div id="checksContainer">
                 <div class="empty-state">
-                    <div class="empty-state-icon">📊</div>
+                    <div class="empty-state-icon">--</div>
                     <p>Select a monitor to view check data</p>
                 </div>
             </div>
@@ -565,19 +683,19 @@
         <div class="data-section">
             <div class="section-header">
                 <div class="section-title">
-                    📋 System Logs
+                    System Logs
                 </div>
             </div>
             
             <div class="actions-bar">
-                <button class="btn btn-primary btn-sm" onclick="loadAlertLogs()">🔔 View Alert Logs</button>
-                <button class="btn btn-warning btn-sm" onclick="clearAlertLogs()">🧹 Clear Alert Logs</button>
-                <button class="btn btn-success btn-sm" onclick="downloadLogs()">📥 Download Logs</button>
+                <button class="btn btn-primary btn-sm" onclick="loadAlertLogs()">View Alert Logs</button>
+                <button class="btn btn-warning btn-sm" onclick="clearAlertLogs()">Clear Alert Logs</button>
+                <button class="btn btn-success btn-sm" onclick="downloadLogs()">Download Logs</button>
             </div>
             
             <div id="logsContainer">
                 <div class="empty-state">
-                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-icon">--</div>
                     <p>Click "View Alert Logs" to load system logs</p>
                 </div>
             </div>
@@ -587,32 +705,36 @@
         <div class="data-section">
             <div class="section-header">
                 <div class="section-title">
-                    🔧 Database Maintenance
+                    Database Maintenance
                 </div>
             </div>
             
             <div class="actions-bar">
-                <button class="btn btn-primary btn-sm" onclick="optimizeDatabase()">⚡ Optimize Storage</button>
-                <button class="btn btn-success btn-sm" onclick="exportAllData()">📤 Full Backup</button>
-                <button class="btn btn-secondary btn-sm" onclick="showHealthCheck()">🏥 Health Check</button>
+                <button class="btn btn-primary btn-sm" onclick="optimizeDatabase()">Optimize Storage</button>
+                <button class="btn btn-success btn-sm" onclick="exportAllData()">Full Backup</button>
+                <button class="btn btn-secondary btn-sm" onclick="showHealthCheck()">Health Check</button>
             </div>
             
             <div id="maintenanceResults">
                 <div class="empty-state">
-                    <div class="empty-state-icon">🔧</div>
+                    <div class="empty-state-icon">--</div>
                     <p>Use the maintenance tools above to optimize your database</p>
                 </div>
             </div>
 
             <div class="dangerous-action">
-                <h4>⚠️ Dangerous Operations</h4>
+                <h4>Warning: Dangerous Operations</h4>
                 <p>These operations cannot be undone. Please ensure you have backups before proceeding.</p>
                 <div class="actions-bar">
-                    <button class="btn btn-danger btn-sm" onclick="resetAllData()">💥 Reset All Data</button>
+                    <button class="btn btn-danger btn-sm" onclick="resetAllData()">Reset All Data</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <footer class="app-footer">
+        <p>Uptime Monitor &middot; Real-time infrastructure monitoring</p>
+    </footer>
 
     <script>
         // Configuration
@@ -628,15 +750,15 @@
 
         // Refresh all data
         async function refreshAllData() {
-            const refreshIcon = document.getElementById('refreshIcon');
-            refreshIcon.style.animation = 'spin 1s linear infinite';
-            
+            const refreshBtn = document.getElementById('refreshIcon');
+            refreshBtn.textContent = 'Refreshing...';
+
             await Promise.all([
                 loadStorageStats(),
                 loadMonitors()
             ]);
-            
-            refreshIcon.style.animation = '';
+
+            refreshBtn.textContent = 'Refresh All';
             showAlert('success', 'All data refreshed successfully');
         }
 
@@ -684,7 +806,7 @@
                 // Show error state
                 document.getElementById('storageStats').innerHTML = `
                     <div class="stat-card">
-                        <div class="stat-value" style="color: #ef4444;">Error</div>
+                        <div class="stat-value" style="color: var(--bad);">Error</div>
                         <div class="stat-label">Failed to load</div>
                     </div>
                 `;
@@ -725,7 +847,7 @@
             } else {
                 document.getElementById('checksContainer').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-icon">--</div>
                         <p>Select a monitor to view check data</p>
                     </div>
                 `;
@@ -799,7 +921,7 @@
                 } else {
                     html += `
                         <div class="empty-state">
-                            <div class="empty-state-icon">📊</div>
+                            <div class="empty-state-icon">--</div>
                             <p>No check data available for this monitor</p>
                         </div>
                     `;
@@ -812,7 +934,7 @@
                 showAlert('error', 'Failed to load check data');
                 document.getElementById('checksContainer').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon" style="color: #ef4444;">❌</div>
+                        <div class="empty-state-icon" style="color: var(--bad);">Error</div>
                         <p>Failed to load check data</p>
                     </div>
                 `;
@@ -965,14 +1087,14 @@
                     html += '</div>';
                     
                     if (logLines.length > 100) {
-                        html += `<p style="text-align: center; color: #64748b; margin-top: 1rem; font-size: 0.875rem;">
+                        html += `<p style="text-align: center; color: var(--muted); margin-top: 1rem; font-size: 0.875rem;">
                             Showing last 100 entries (${logLines.length} total)
                         </p>`;
                     }
                 } else {
                     html += `
                         <div class="empty-state">
-                            <div class="empty-state-icon">📋</div>
+                            <div class="empty-state-icon">--</div>
                             <p>No alert logs found</p>
                         </div>
                     `;
@@ -985,7 +1107,7 @@
                 showAlert('error', 'Failed to load alert logs');
                 document.getElementById('logsContainer').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon" style="color: #ef4444;">❌</div>
+                        <div class="empty-state-icon" style="color: var(--bad);">Error</div>
                         <p>Failed to load alert logs</p>
                     </div>
                 `;
@@ -1113,7 +1235,7 @@
                 
                 let resultsHtml = `
                     <div class="file-info">
-                        <div class="file-path">✅ Optimization completed successfully</div>
+                        <div class="file-path">Optimization completed successfully</div>
                         <div class="file-size">
                             Removed ${result.total_checks_removed} old check records |
                             Cleaned ${result.empty_files_removed} empty files |
@@ -1141,7 +1263,7 @@
                 showAlert('error', 'Failed to optimize database');
                 document.getElementById('maintenanceResults').innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-state-icon" style="color: #ef4444;">❌</div>
+                        <div class="empty-state-icon" style="color: var(--bad);">Error</div>
                         <p>Optimization failed</p>
                     </div>
                 `;
@@ -1158,8 +1280,8 @@
                 
                 const health = await response.json();
                 
-                let statusColor = health.status === 'healthy' ? '#10b981' : '#ef4444';
-                let statusIcon = health.status === 'healthy' ? '✅' : '❌';
+                let statusColor = health.status === 'healthy' ? 'var(--ok)' : 'var(--bad)';
+                let statusIcon = health.status === 'healthy' ? 'OK' : 'FAIL';
                 
                 let resultsHtml = `
                     <div class="file-info">
@@ -1174,15 +1296,15 @@
                 if (health.errors && health.errors.length > 0) {
                     resultsHtml += '<div class="log-viewer">';
                     health.errors.forEach(error => {
-                        resultsHtml += `<div class="log-line log-error">❌ ${error}</div>`;
+                        resultsHtml += `<div class="log-line log-error">[FAIL] ${error}</div>`;
                     });
                     resultsHtml += '</div>';
                 } else {
                     resultsHtml += `
                         <div class="log-viewer">
-                            <div class="log-line log-success">✅ All systems operational</div>
-                            <div class="log-line log-success">✅ Data directories writable</div>
-                            <div class="log-line log-success">✅ Monitoring active</div>
+                            <div class="log-line log-success">[OK] All systems operational</div>
+                            <div class="log-line log-success">[OK] Data directories writable</div>
+                            <div class="log-line log-success">[OK] Monitoring active</div>
                         </div>
                     `;
                 }
@@ -1292,6 +1414,18 @@
             // Scroll to top to show alert
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
+        // Theme support
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+            });
+        })();
     </script>
 </body>
 </html>

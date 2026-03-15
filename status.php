@@ -2,8 +2,11 @@
 // status.php — Feature-rich public status page with links, filters, export
 header('Content-Type: text/html; charset=utf-8');
 
-// API
-$apiBase         = 'http://192.168.8.127/monitor/api.php';
+// API - auto-detect base URL
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$scriptDir = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+$apiBase = $protocol . '://' . $host . $scriptDir . '/api.php';
 $monitorsData    = @file_get_contents($apiBase . '?path=monitors&include_chart=true');
 $statsData       = @file_get_contents($apiBase . '?path=stats');
 $maintenanceData = @file_get_contents($apiBase . '?path=maintenance');
@@ -29,13 +32,33 @@ function cleanUrl($url) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="refresh" content="300">
-<title>System Status - Live Monitoring</title>
+<title>System Status &mdash; Uptime Monitor</title>
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
 <style>
+/* --- navigation --- */
+.main-nav{background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:1000;padding:0 20px}
+html[data-theme="light"] .main-nav{background:rgba(255,255,255,.95);border-bottom-color:rgba(0,0,0,.08)}
+.nav-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:32px;height:56px}
+.nav-brand{font-size:1.1rem;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;white-space:nowrap}
+.nav-links{display:flex;gap:4px}
+.nav-link{padding:8px 14px;border-radius:8px;color:#94a3b8;text-decoration:none;font-size:.9rem;font-weight:500;transition:all .2s}
+.nav-link:hover{background:rgba(255,255,255,.06);color:#e2e8f0}
+html[data-theme="light"] .nav-link:hover{background:rgba(0,0,0,.04);color:#0f172a}
+.nav-link.active{background:rgba(59,130,246,.15);color:#60a5fa}
+html[data-theme="light"] .nav-link.active{background:rgba(37,99,235,.1);color:#2563eb}
+.nav-theme-toggle{margin-left:auto;background:none;border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:1.1rem;color:#94a3b8;transition:all .2s}
+.nav-theme-toggle:hover{background:rgba(255,255,255,.06)}
+html[data-theme="light"] .nav-theme-toggle{border-color:rgba(0,0,0,.1);color:#475569}
+html[data-theme="light"] .nav-theme-toggle:hover{background:rgba(0,0,0,.04)}
+.theme-icon-light{display:none}
+html[data-theme="light"] .theme-icon-dark{display:none}
+html[data-theme="light"] .theme-icon-light{display:inline}
+@media(max-width:600px){.nav-inner{gap:12px}.nav-link{padding:6px 10px;font-size:.8rem}.nav-brand{font-size:.95rem}}
+
 /* --- base & theme --- */
 :root{
   --bg0:#0f172a;--bg1:#1e293b;--panel:#1f2937;--muted:#94a3b8;--text:#e2e8f0;
@@ -160,6 +183,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica N
 </style>
 </head>
 <body>
+  <nav class="main-nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Uptime Monitor</a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="status.php" class="nav-link active">Status</a>
+        <a href="config.html" class="nav-link">Settings</a>
+        <a href="data.html" class="nav-link">Data</a>
+      </div>
+      <button class="nav-theme-toggle" id="toggle-theme" title="Toggle theme">
+        <span class="theme-icon-dark">&#9789;</span>
+        <span class="theme-icon-light">&#9788;</span>
+      </button>
+    </div>
+  </nav>
+
   <div class="container">
     <div class="header">
       <div class="brand">
@@ -168,8 +207,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica N
         <div class="last-updated">Last updated: <?= date('g:i:s A') ?></div>
       </div>
       <div class="header-actions">
-        <button class="btn primary" id="toggle-theme" aria-pressed="false" title="Toggle light/dark" type="button">Toggle Theme</button>
-        <a class="btn ghost" href="<?= htmlspecialchars($apiBase) ?>?path=monitors&include_chart=true" target="_blank" rel="noopener">View JSON</a>
         <button class="btn ghost" id="export-csv" type="button">Export CSV</button>
         <button class="btn" id="expand-all" type="button"><span id="expand-text">Expand All</span></button>
       </div>
@@ -332,9 +369,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica N
     </div>
     <?php endif; ?>
 
-    <div class="footer">
-      <p>Powered by Uptime Monitor <a class="tool-link btn" href="<?= htmlspecialchars($apiBase) ?>?path=stats" target="_blank" rel="noopener">Stats JSON</a></p>
-    </div>
+    <footer class="footer">
+      <p>Uptime Monitor &middot; Real-time infrastructure monitoring</p>
+    </footer>
   </div>
 
 <script>

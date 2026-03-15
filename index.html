@@ -3,10 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uptime Monitor Dashboard - Enhanced v3.0</title>
+    <title>Uptime Monitor</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
     <style>
+        /* --- navigation --- */
+        .main-nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+        html[data-theme="light"] .main-nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: rgba(0,0,0,0.08);
+        }
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            height: 56px;
+        }
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        .nav-link {
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+        html[data-theme="light"] .nav-link:hover { background: rgba(0,0,0,0.04); color: #0f172a; }
+        .nav-link.active { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        html[data-theme="light"] .nav-link.active { background: rgba(37,99,235,0.1); color: #2563eb; }
+        .nav-theme-toggle {
+            margin-left: auto;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .nav-theme-toggle:hover { background: rgba(255,255,255,0.06); }
+        html[data-theme="light"] .nav-theme-toggle { border-color: rgba(0,0,0,0.1); color: #475569; }
+        html[data-theme="light"] .nav-theme-toggle:hover { background: rgba(0,0,0,0.04); }
+        .theme-icon-light { display: none; }
+        html[data-theme="light"] .theme-icon-dark { display: none; }
+        html[data-theme="light"] .theme-icon-light { display: inline; }
+
+        @media (max-width: 600px) {
+            .nav-inner { gap: 12px; }
+            .nav-link { padding: 6px 10px; font-size: 0.8rem; }
+            .nav-brand { font-size: 0.95rem; }
+        }
+
         /* --- base & theme --- */
         :root {
             --bg0: #0f172a;
@@ -555,42 +627,11 @@
             color: var(--text);
         }
         
-        /* alerts */
-        .alert {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-            animation: slideIn .3s;
-        }
-        
-        .alert.active {
-            display: block;
-        }
-        
-        .alert-success {
-            background: rgba(16,185,129,.1);
-            border: 1px solid rgba(16,185,129,.3);
-            color: var(--ok);
-        }
-        
-        .alert-error {
-            background: rgba(239,68,68,.1);
-            border: 1px solid rgba(239,68,68,.3);
-            color: var(--bad);
-        }
-        
-        .alert-info {
-            background: rgba(59,130,246,.1);
-            border: 1px solid rgba(59,130,246,.3);
-            color: var(--primary);
-        }
-        
         /* modal */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 1100;
             left: 0;
             top: 0;
             width: 100%;
@@ -695,6 +736,116 @@
             color: var(--text);
         }
         
+        /* uptime bar */
+        .uptime-bar {
+            display: flex;
+            gap: 2px;
+            height: 28px;
+            margin: 8px 0 4px;
+            align-items: stretch;
+        }
+        .uptime-bar-segment {
+            flex: 1;
+            border-radius: 3px;
+            min-width: 3px;
+            transition: opacity 0.2s;
+            position: relative;
+        }
+        .uptime-bar-segment:hover {
+            opacity: 0.8;
+            transform: scaleY(1.15);
+        }
+        .uptime-bar-segment.up { background: var(--ok); }
+        .uptime-bar-segment.down { background: var(--bad); }
+        .uptime-bar-segment.unknown { background: var(--border); }
+        .uptime-bar-segment.partial { background: var(--warn); }
+        .uptime-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        /* collapsible add monitor */
+        .add-monitor-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+        .add-monitor-toggle .toggle-icon {
+            font-size: 0.9rem;
+            color: var(--muted);
+            transition: transform 0.25s;
+        }
+        .add-monitor.collapsed .add-monitor-body {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            opacity: 0;
+        }
+        .add-monitor-body {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+            opacity: 1;
+            padding-top: 16px;
+        }
+        .add-monitor.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* left status bar on cards */
+        .monitor-card {
+            border-left: 4px solid var(--border);
+        }
+        .monitor-card[data-status="up"] {
+            border-left-color: var(--ok);
+        }
+        .monitor-card[data-status="down"] {
+            border-left-color: var(--bad);
+        }
+        .monitor-card[data-status="warning"] {
+            border-left-color: var(--warn);
+        }
+
+        /* toast notification */
+        .toast-container {
+            position: fixed;
+            top: 72px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .toast {
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 24px var(--shadow);
+            animation: toastIn 0.3s ease;
+            max-width: 400px;
+        }
+        .toast.success { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--ok); }
+        .toast.error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: var(--bad); }
+        .toast.info { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .toast.toast-out {
+            animation: toastOut 0.3s ease forwards;
+        }
+        @keyframes toastOut {
+            to { opacity: 0; transform: translateX(20px); }
+        }
+
         /* footer */
         .footer {
             text-align: center;
@@ -702,7 +853,7 @@
             margin-top: 40px;
             border-top: 1px solid var(--border);
             color: var(--muted);
-            font-size: .9rem;
+            font-size: .85rem;
         }
         
         /* animations */
@@ -783,20 +934,32 @@
     </style>
 </head>
 <body>
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">Uptime Monitor</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link active">Dashboard</a>
+                <a href="status.php" class="nav-link">Status</a>
+                <a href="config.html" class="nav-link">Settings</a>
+                <a href="data.html" class="nav-link">Data</a>
+            </div>
+            <button class="nav-theme-toggle" id="toggle-theme" title="Toggle theme">
+                <span class="theme-icon-dark">&#9789;</span>
+                <span class="theme-icon-light">&#9788;</span>
+            </button>
+        </div>
+    </nav>
+
     <div class="container">
         <div class="header">
             <div class="brand">
-                <h1>Uptime Monitor</h1>
-                <p>System administration & monitoring</p>
+                <h1>Dashboard</h1>
                 <div class="last-updated" id="lastUpdated">Last updated: Loading...</div>
             </div>
             <div class="header-actions">
-                <button class="btn primary" id="toggle-theme" aria-pressed="false" title="Toggle light/dark">🎨 Theme</button>
-                <a href="status.php" class="btn ok" target="_blank">🌐 Public Status</a>
-                <button class="btn warn" onclick="startMaintenance()">🔧 Maintenance</button>
-                <button class="btn" onclick="showNetworkScanner()">📡 Network Scan</button>
-                <button class="btn ghost" onclick="testAllAlerts()">🧪 Test Alerts</button>
-                <a href="config.html" class="btn ghost">⚙️ Configuration</a>
+                <button class="btn warn" onclick="startMaintenance()">Maintenance</button>
+                <button class="btn" onclick="showNetworkScanner()">Network Scan</button>
+                <button class="btn ghost" onclick="testAllAlerts()">Test Alerts</button>
             </div>
         </div>
         
@@ -810,9 +973,7 @@
             </div>
         </div>
         
-        <div class="alert alert-success" id="successAlert"></div>
-        <div class="alert alert-error" id="errorAlert"></div>
-        <div class="alert alert-info" id="infoAlert"></div>
+        <div class="toast-container" id="toastContainer"></div>
         
         <div class="summary-panel">
             <div class="overall-status">
@@ -841,8 +1002,12 @@
             </div>
         </div>
 
-        <div class="add-monitor">
-            <h2 class="section-title">Quick Add Monitor</h2>
+        <div class="add-monitor collapsed" id="addMonitorSection">
+            <div class="add-monitor-toggle" onclick="toggleAddMonitor()">
+                <h2 class="section-title">Add Monitor</h2>
+                <span class="toggle-icon">&#9660;</span>
+            </div>
+            <div class="add-monitor-body">
             <form id="quickAddForm">
                 <div class="form-row">
                     <div class="form-group">
@@ -893,13 +1058,14 @@
                     </div>
                 </div>
                 <div style="margin-top: 1rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button type="submit" class="btn primary">➕ Add Monitor</button>
-                    <button type="button" class="btn ok" onclick="quickCheck()">⚡ Quick Check</button>
+                    <button type="submit" class="btn primary">Add Monitor</button>
+                    <button type="button" class="btn ok" onclick="quickCheck()">Quick Check</button>
                     <button type="button" class="btn ghost" onclick="document.getElementById('quickAddForm').reset()">Clear</button>
                 </div>
             </form>
+            </div>
         </div>
-        
+
         <!-- toolbar -->
         <div class="toolbar" aria-label="Filters and search">
             <div class="filters">
@@ -1064,8 +1230,8 @@
                 </div>
                 
                 <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end; flex-wrap: wrap;">
-                    <button type="button" class="btn warn" onclick="testMonitorAlert()">🧪 Test Alert</button>
-                    <button type="submit" class="btn primary">💾 Save Changes</button>
+                    <button type="button" class="btn warn" onclick="testMonitorAlert()">Test Alert</button>
+                    <button type="submit" class="btn primary">Save Changes</button>
                     <button type="button" class="btn ghost" onclick="closeEditModal()">Cancel</button>
                 </div>
             </form>
@@ -1101,7 +1267,7 @@
 google.com
 example.com"></textarea>
                 </div>
-                <button class="btn primary" onclick="runNetworkScan()">🔍 Start Scan</button>
+                <button class="btn primary" onclick="runNetworkScan()">Start Scan</button>
                 
                 <div id="scanResults" style="margin-top: 1rem; display: none;">
                 </div>
@@ -1109,9 +1275,9 @@ example.com"></textarea>
         </div>
     </div>
     
-    <div class="footer">
-        <p>Powered by Uptime Monitor • Auto-refreshes every 30 seconds • <a class="btn ghost" href="api.php?path=monitors" target="_blank">API</a></p>
-    </div>
+    <footer class="footer">
+        <p>Uptime Monitor &middot; Auto-refreshes every 30 seconds &middot; <a class="btn ghost" href="api.php?path=version" target="_blank">API v2.2</a></p>
+    </footer>
 
     <script>
         // Configuration
@@ -1138,9 +1304,6 @@ example.com"></textarea>
         
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Initializing dashboard...');
-            console.log('API URL:', API_URL);
-            
             // Set chart defaults
             if (typeof Chart !== 'undefined') {
                 Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#94a3b8';
@@ -1244,21 +1407,16 @@ example.com"></textarea>
         
         // Load monitors with better error handling
         async function loadMonitors() {
-            console.log('Loading monitors from:', API_URL);
             try {
                 const url = `${API_URL}?path=monitors&include_chart=true`;
-                console.log('Fetching:', url);
                 
                 const response = await fetch(url);
-                console.log('Response status:', response.status);
-                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
                 }
                 
                 const contentType = response.headers.get('content-type');
-                console.log('Content-Type:', contentType);
                 
                 if (!contentType || !contentType.includes('application/json')) {
                     const text = await response.text();
@@ -1267,7 +1425,6 @@ example.com"></textarea>
                 }
                 
                 const data = await response.json();
-                console.log('Loaded monitors:', data);
                 
                 // Handle both array response and object with monitors property
                 monitors = Array.isArray(data) ? data : (data.monitors || []);
@@ -1307,7 +1464,13 @@ example.com"></textarea>
             if (!monitorsList) return;
             
             if (monitors.length === 0) {
-                monitorsList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--muted);">No monitors configured. Add your first monitor above!</div>';
+                monitorsList.innerHTML = `
+                    <div style="text-align: center; padding: 3rem 2rem;">
+                        <div style="font-size: 2.5rem; margin-bottom: 12px; opacity: 0.3;">&#9673;</div>
+                        <div style="font-size: 1.15rem; font-weight: 600; color: var(--text); margin-bottom: 8px;">No monitors yet</div>
+                        <div style="color: var(--muted); margin-bottom: 16px;">Add your first monitor to start tracking uptime</div>
+                        <button class="btn primary" onclick="document.getElementById('addMonitorSection').classList.remove('collapsed'); document.getElementById('quick_target').focus();">Add Monitor</button>
+                    </div>`;
                 return;
             }
             
@@ -1370,15 +1533,16 @@ example.com"></textarea>
                                     </div>
                                 </div>
                                 <div class="tools" aria-hidden="true">
-                                    <button class="tool-btn btn" onclick="editMonitor('${monitor.id}'); event.stopPropagation();">✏️ Edit</button>
-                                    <button class="tool-btn btn ok" onclick="checkNow('${monitor.id}'); event.stopPropagation();">🔄 Check Now</button>
-                                    <button class="tool-btn btn warn" onclick="testAlert('${monitor.id}'); event.stopPropagation();">🧪 Test Alert</button>
-                                    <button class="tool-btn btn bad" onclick="deleteMonitor('${monitor.id}'); event.stopPropagation();">🗑️ Delete</button>
+                                    <button class="tool-btn btn" onclick="editMonitor('${monitor.id}'); event.stopPropagation();">Edit</button>
+                                    <button class="tool-btn btn ok" onclick="checkNow('${monitor.id}'); event.stopPropagation();">Check Now</button>
+                                    <button class="tool-btn btn warn" onclick="testAlert('${monitor.id}'); event.stopPropagation();">Test Alert</button>
+                                    <button class="tool-btn btn bad" onclick="deleteMonitor('${monitor.id}'); event.stopPropagation();">Delete</button>
                                 </div>
                             </div>
                             
                             <div class="monitor-content">
                                 <div class="monitor-content-inner">
+                                    ${renderUptimeBar(monitor)}
                                     <div class="chart-container">
                                         <canvas id="chart-${monitor.id}"></canvas>
                                     </div>
@@ -1442,6 +1606,45 @@ example.com"></textarea>
             }
         }
         
+        // Toggle add monitor section
+        function toggleAddMonitor() {
+            const section = document.getElementById('addMonitorSection');
+            if (section) section.classList.toggle('collapsed');
+        }
+
+        // Render uptime bar from sparkline data
+        function renderUptimeBar(monitor) {
+            const sparkline = monitor.sparkline || [];
+            if (sparkline.length === 0) {
+                return '<div class="uptime-bar-labels"><span>No data yet</span></div>';
+            }
+            const segments = Math.min(sparkline.length, 45);
+            const step = Math.max(1, Math.floor(sparkline.length / segments));
+            let bars = '';
+            for (let i = 0; i < sparkline.length; i += step) {
+                const val = sparkline[i];
+                let cls = 'unknown';
+                if (val === 0) cls = 'down';
+                else if (val !== null && val > 0) cls = 'up';
+                bars += '<div class="uptime-bar-segment ' + cls + '" title="' + (val > 0 ? val + 'ms' : (val === 0 ? 'Down' : 'No data')) + '"></div>';
+            }
+            return '<div class="uptime-bar-labels"><span>Older</span><span>Now</span></div><div class="uptime-bar">' + bars + '</div>';
+        }
+
+        // Toast notification system
+        function showAlert(type, message) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('toast-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
         // Helper function to escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
@@ -1581,7 +1784,6 @@ example.com"></textarea>
         async function updateStats() {
             try {
                 const url = `${API_URL}?path=stats`;
-                console.log('Fetching stats from:', url);
                 
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -1590,7 +1792,6 @@ example.com"></textarea>
                 }
                 
                 const stats = await response.json();
-                console.log('Stats data:', stats);
                 
                 // Update overall status
                 const down = stats.down || 0;
@@ -1728,7 +1929,6 @@ example.com"></textarea>
                     config: config
                 };
                 
-                console.log('Adding monitor:', data);
                 
                 const response = await fetch(`${API_URL}?path=monitors`, {
                     method: 'POST',
@@ -1743,7 +1943,6 @@ example.com"></textarea>
                 }
                 
                 const result = await response.json();
-                console.log('Monitor added:', result);
                 
                 showAlert('success', 'Monitor added successfully!');
                 e.target.reset();
@@ -1775,7 +1974,6 @@ example.com"></textarea>
                     data.port = parseInt(portValue) || 80;
                 }
                 
-                console.log('Quick check data:', data);
                 showAlert('info', 'Running quick check...');
                 
                 const response = await fetch(`${API_URL}?path=quick-check`, {
@@ -1791,7 +1989,6 @@ example.com"></textarea>
                 }
                 
                 const result = await response.json();
-                console.log('Quick check result:', result);
                 
                 if (result.status === 'up') {
                     showAlert('success', `✅ ${target} is UP! Response time: ${result.response_time || 'N/A'}ms`);
@@ -2217,16 +2414,7 @@ example.com"></textarea>
             return `${Math.round(seconds / 3600)}h`;
         }
         
-        function showAlert(type, message) {
-            const alertEl = document.getElementById(type + 'Alert');
-            if (alertEl) {
-                alertEl.textContent = message;
-                alertEl.classList.add('active');
-                setTimeout(() => {
-                    alertEl.classList.remove('active');
-                }, 5000);
-            }
-        }
+        // showAlert is defined earlier as toast system
         
         // Add event listeners for Quick Add form fields
         document.addEventListener('DOMContentLoaded', () => {
