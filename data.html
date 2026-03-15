@@ -952,8 +952,8 @@
             if (!confirm('This will delete check data older than 90 days. Continue?')) return;
             
             try {
-                const response = await fetch(`${API_URL}?path=monitors/${monitorId}/checks/old`, {
-                    method: 'DELETE'
+                const response = await fetch(`${API_URL}?path=monitors/${monitorId}/checks/old&_method=DELETE`, {
+                    method: 'POST'
                 });
                 
                 if (!response.ok) throw new Error('Failed to clear old checks');
@@ -989,8 +989,8 @@
             }
             
             try {
-                const response = await fetch(`${API_URL}?path=monitors/${monitorId}/checks`, {
-                    method: 'DELETE'
+                const response = await fetch(`${API_URL}?path=monitors/${monitorId}/checks&_method=DELETE`, {
+                    method: 'POST'
                 });
                 
                 if (!response.ok) throw new Error('Failed to clear all checks');
@@ -1148,8 +1148,8 @@
             if (!confirm('This will clear all alert logs. Continue?')) return;
             
             try {
-                const response = await fetch(`${API_URL}?path=logs`, {
-                    method: 'DELETE'
+                const response = await fetch(`${API_URL}?path=logs&_method=DELETE`, {
+                    method: 'POST'
                 });
                 
                 if (!response.ok) throw new Error('Failed to clear logs');

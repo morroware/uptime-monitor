@@ -1030,8 +1030,8 @@
             }
             
             try {
-                const response = await fetch(`${API_URL}?path=config`, {
-                    method: 'PUT',
+                const response = await fetch(`${API_URL}?path=config&_method=PUT`, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },

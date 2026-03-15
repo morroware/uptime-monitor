@@ -995,6 +995,15 @@ function sendTextBeeSMS($monitor, $status, $previousStatus, $error = null) {
 // ============================================================================
 
 $method = $_SERVER['REQUEST_METHOD'];
+
+// Support method override for servers that don't handle DELETE/PUT properly
+if ($method === 'POST' && !empty($_GET['_method'])) {
+    $override = strtoupper($_GET['_method']);
+    if (in_array($override, ['DELETE', 'PUT'])) {
+        $method = $override;
+    }
+}
+
 $path = isset($_GET['path']) ? $_GET['path'] : '';
 
 /**
