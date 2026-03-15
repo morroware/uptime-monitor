@@ -1,10 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uptime Monitor - Configuration</title>
     <style>
+        :root {
+            --bg0: #0f172a;
+            --bg1: #1e293b;
+            --panel: #1f2937;
+            --muted: #94a3b8;
+            --text: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-2: #8b5cf6;
+            --ok: #10b981;
+            --warn: #f59e0b;
+            --bad: #ef4444;
+            --border: rgba(255,255,255,.1);
+            --shadow: rgba(0,0,0,.3);
+        }
+        html[data-theme="light"] {
+            --bg0: #f8fafc;
+            --bg1: #eef2f7;
+            --panel: #ffffff;
+            --muted: #475569;
+            --text: #0f172a;
+            --primary: #2563eb;
+            --primary-2: #7c3aed;
+            --ok: #059669;
+            --warn: #d97706;
+            --bad: #dc2626;
+            --border: rgba(0,0,0,.08);
+            --shadow: rgba(0,0,0,.1);
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+        html[data-theme="light"] .main-nav {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom-color: rgba(0,0,0,0.08);
+        }
+        .nav-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            height: 56px;
+        }
+        .nav-brand {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+        }
+        .nav-link {
+            padding: 8px 14px;
+            border-radius: 8px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+        html[data-theme="light"] .nav-link:hover { background: rgba(0,0,0,0.04); color: #0f172a; }
+        .nav-link.active { background: rgba(59,130,246,0.15); color: #60a5fa; }
+        html[data-theme="light"] .nav-link.active { background: rgba(37,99,235,0.1); color: #2563eb; }
+        .nav-theme-toggle {
+            margin-left: auto;
+            background: none;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .nav-theme-toggle:hover { background: rgba(255,255,255,0.06); }
+        html[data-theme="light"] .nav-theme-toggle { border-color: rgba(0,0,0,0.1); color: #475569; }
+        html[data-theme="light"] .nav-theme-toggle:hover { background: rgba(0,0,0,0.04); }
+        .theme-icon-light { display: none; }
+        html[data-theme="light"] .theme-icon-dark { display: none; }
+        html[data-theme="light"] .theme-icon-light { display: inline; }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,8 +108,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: #0f172a;
-            color: #e2e8f0;
+            background: var(--bg0);
+            color: var(--text);
             min-height: 100vh;
             padding: 20px;
         }
@@ -38,16 +133,16 @@
         }
 
         .subtitle {
-            color: #94a3b8;
+            color: var(--muted);
             font-size: 1.1rem;
         }
 
         .config-section {
-            background: #1e293b;
+            background: var(--bg1);
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px var(--shadow);
             animation: slideIn 0.5s ease-out;
         }
 
@@ -67,7 +162,7 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
         }
 
         .section-icon {
@@ -81,7 +176,7 @@
         }
 
         h2 {
-            color: #e2e8f0;
+            color: var(--text);
             font-size: 1.5rem;
         }
 
@@ -92,13 +187,13 @@
         label {
             display: block;
             margin-bottom: 0.5rem;
-            color: #94a3b8;
+            color: var(--muted);
             font-weight: 500;
         }
 
         .label-hint {
             font-size: 0.875rem;
-            color: #64748b;
+            color: var(--muted);
             font-weight: normal;
             margin-left: 0.5rem;
         }
@@ -106,19 +201,19 @@
         input, select, textarea {
             width: 100%;
             padding: 0.75rem;
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: var(--bg0);
+            border: 1px solid var(--border);
             border-radius: 6px;
-            color: #e2e8f0;
+            color: var(--text);
             font-size: 1rem;
             transition: border-color 0.2s;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: var(--primary);
         }
-        
+
         textarea {
             min-height: 100px;
             resize: vertical;
@@ -161,28 +256,28 @@
         }
 
         .btn-primary {
-            background: linear-gradient(to right, #3b82f6, #8b5cf6);
+            background: linear-gradient(to right, var(--primary), var(--primary-2));
         }
-        
+
         .btn-primary:hover {
              box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
-        
+
         .btn-test {
-            background: linear-gradient(to right, #10b981, #059669);
+            background: linear-gradient(to right, var(--ok), #059669);
         }
-        
+
         .btn-test:hover {
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
 
         .btn-secondary {
-            background: #334155;
-            color: #e2e8f0;
+            background: var(--border);
+            color: var(--text);
         }
-        
+
         .btn-secondary:hover {
-            background: #475569;
+            background: var(--muted);
         }
 
         .alert {
@@ -195,26 +290,26 @@
         .alert-success {
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #10b981;
+            color: var(--ok);
         }
 
         .alert-error {
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
+            color: var(--bad);
         }
 
         .alert-info {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #3b82f6;
+            color: var(--primary);
         }
 
         .tabs {
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1.5rem;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
             flex-wrap: wrap;
         }
 
@@ -223,15 +318,15 @@
             background: none;
             border: none;
             font-size: 1rem;
-            color: #94a3b8;
+            color: var(--muted);
             cursor: pointer;
             border-bottom: 2px solid transparent;
             transition: all 0.3s;
         }
 
         .tab.active {
-            color: #3b82f6;
-            border-bottom-color: #3b82f6;
+            color: var(--primary);
+            border-bottom-color: var(--primary);
         }
         
         .tab-content {
@@ -250,17 +345,17 @@
             padding: 0.5rem 1rem;
             margin-right: 0.5rem;
             margin-bottom: 0.5rem;
-            background: #334155;
-            color: #e2e8f0;
-            border: 1px solid #475569;
+            background: var(--bg1);
+            color: var(--text);
+            border: 1px solid var(--border);
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .template-btn:hover {
-            border-color: #3b82f6;
-            background: #475569;
+            border-color: var(--primary);
+            background: var(--panel);
         }
 
         .status-indicator {
@@ -271,15 +366,15 @@
             margin-right: 0.5rem;
         }
 
-        .status-configured { background: #10b981; }
-        .status-not-configured { background: #ef4444; }
+        .status-configured { background: var(--ok); }
+        .status-not-configured { background: var(--bad); }
 
         .config-status {
-            background: #0f172a;
+            background: var(--bg0);
             padding: 1rem;
             border-radius: 8px;
             margin-bottom: 1rem;
-            border: 1px solid #334155;
+            border: 1px solid var(--border);
         }
 
         .status-item {
@@ -291,7 +386,7 @@
         .help-text {
             background: rgba(59, 130, 246, 0.1);
             border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #3b82f6;
+            color: var(--primary);
             padding: 1rem;
             border-radius: 8px;
             margin-top: 1rem;
@@ -303,7 +398,7 @@
         }
 
         .back-link {
-            color: #e2e8f0;
+            color: var(--text);
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -314,6 +409,15 @@
 
         .back-link:hover {
             opacity: 1;
+        }
+
+        .app-footer {
+            text-align: center;
+            padding: 24px 0;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.85rem;
         }
 
         @media (max-width: 768px) {
@@ -333,11 +437,25 @@
     </style>
 </head>
 <body>
+    <nav class="main-nav">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-brand">Uptime Monitor</a>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">Dashboard</a>
+                <a href="status.php" class="nav-link">Status</a>
+                <a href="config.html" class="nav-link active">Settings</a>
+                <a href="data.html" class="nav-link">Data</a>
+            </div>
+            <button class="nav-theme-toggle" id="themeToggle" title="Toggle theme">
+                <span class="theme-icon-dark">&#9789;</span>
+                <span class="theme-icon-light">&#9788;</span>
+            </button>
+        </div>
+    </nav>
+
     <div class="container">
-        <a href="index.html" class="back-link">← Back to Monitor</a>
-        
         <div class="header">
-            <h1>⚙️ Configuration Center</h1>
+            <h1>Configuration Center</h1>
             <div class="subtitle">Configure alerts and integrations for your uptime monitor</div>
         </div>
 
@@ -358,7 +476,6 @@
             <div class="tab-content active" id="general-tab">
                 <div class="config-section">
                     <div class="section-header">
-                        <div class="section-icon">⚙️</div>
                         <h2>General Settings</h2>
                     </div>
                     
@@ -405,7 +522,6 @@
             <div class="tab-content" id="slack-tab">
                 <div class="config-section">
                     <div class="section-header">
-                        <div class="section-icon">💬</div>
                         <h2>Slack Configuration</h2>
                     </div>
                     
@@ -415,7 +531,7 @@
                     </div>
                     
                     <div class="help-text">
-                        <strong>🤖 Bot Token Setup (Recommended):</strong><br>
+                        <strong>Bot Token Setup (Recommended):</strong><br>
                         1. Go to <a href="https://api.slack.com/apps" target="_blank">api.slack.com/apps</a><br>
                         2. Create a new app or select existing<br>
                         3. Go to "OAuth & Permissions"<br>
@@ -450,7 +566,7 @@
                         <input type="url" id="slack_bot_dashboard_url" name="slack_bot[dashboard_url]" placeholder="https://yourdomain.com/monitor/">
                     </div>
                     
-                    <hr style="margin: 2rem 0; border-color: #334155;">
+                    <hr style="margin: 2rem 0; border-color: var(--border);">
                     
                     <h3 style="margin-bottom: 1rem;">Legacy Webhook Configuration</h3>
                     
@@ -483,7 +599,6 @@
             <div class="tab-content" id="webhook-tab">
                 <div class="config-section">
                     <div class="section-header">
-                        <div class="section-icon">🔗</div>
                         <h2>Custom Webhook Configuration</h2>
                     </div>
                     
@@ -605,7 +720,6 @@
             <div class="tab-content" id="email-tab">
                 <div class="config-section">
                     <div class="section-header">
-                        <div class="section-icon">📧</div>
                         <h2>Email Configuration</h2>
                     </div>
                     
@@ -662,7 +776,6 @@
             <div class="tab-content" id="sms-tab">
                 <div class="config-section">
                     <div class="section-header">
-                        <div class="section-icon">📱</div>
                         <h2>SMS Configuration (TextBee)</h2>
                     </div>
                     
@@ -672,7 +785,7 @@
                     </div>
                     
                     <div class="help-text">
-                        <strong>📱 TextBee SMS Setup:</strong><br>
+                        <strong>TextBee SMS Setup:</strong><br>
                         1. Create an account at <a href="https://textbee.dev" target="_blank">textbee.dev</a><br>
                         2. Create a new device/gateway in your dashboard<br>
                         3. Copy your API Key and Device ID from the device settings<br>
@@ -744,7 +857,7 @@
                     </div>
                     
                     <div style="margin-top: 1.5rem;">
-                        <button type="button" class="btn btn-test" onclick="testSMS()">📱 Send Test SMS</button>
+                        <button type="button" class="btn btn-test" onclick="testSMS()">Send Test SMS</button>
                     </div>
                 </div>
             </div>
@@ -752,7 +865,6 @@
             <div class="tab-content" id="security-tab">
                 <div class="config-section">
                     <div class="section-header">
-                        <div class="section-icon">🔒</div>
                         <h2>Security Configuration</h2>
                     </div>
                     
@@ -781,9 +893,9 @@
             </div>
 
             <div style="margin-top: 2rem; text-align: center;">
-                <button type="submit" class="btn btn-primary">💾 Save Configuration</button>
-                <button type="button" class="btn btn-test" onclick="testAlerts()">🧪 Test All Alerts</button>
-                <button type="button" class="btn btn-secondary" onclick="exportConfig()">📥 Export Config</button>
+                <button type="submit" class="btn btn-primary">Save Configuration</button>
+                <button type="button" class="btn btn-test" onclick="testAlerts()">Test All Alerts</button>
+                <button type="button" class="btn btn-secondary" onclick="exportConfig()">Export Config</button>
             </div>
         </form>
     </div>
@@ -1034,6 +1146,23 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadConfig();
         });
+
+        // Theme support
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved) document.documentElement.setAttribute('data-theme', saved);
+
+            document.getElementById('themeToggle').addEventListener('click', function() {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+            });
+        })();
     </script>
+
+    <footer class="app-footer">
+        <p>Uptime Monitor &middot; Real-time infrastructure monitoring</p>
+    </footer>
 </body>
 </html>

@@ -1,19 +1,12 @@
 <?php
 /**
- * Enhanced Uptime Monitor API with Performance Optimizations - COMPLETE VERSION
- * Version: 2.2
- * 
- * This is the full-featured version with all original functionality plus optimizations:
- * - Memory management and caching
- * - Lazy loading and efficient data structures
- * - Reduced file I/O operations
- * - Improved error handling
- * - Performance monitoring
- * - All original endpoints and features preserved
- * 
- * @author Your Name
+ * Uptime Monitor API
+ *
+ * RESTful API for managing monitors, performing health checks,
+ * tracking incidents, and sending alerts via multiple channels.
+ *
  * @license MIT
- * @version 2.2
+ * @version 2.2.0
  */
 
 // ============================================================================
