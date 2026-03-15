@@ -1408,7 +1408,7 @@ example.com"></textarea>
         // Load monitors with better error handling
         async function loadMonitors() {
             try {
-                const url = `${API_URL}?path=monitors&include_chart=true`;
+                const url = `${API_URL}?path=monitors&include_chart=true&_=${Date.now()}`;
                 
                 const response = await fetch(url);
                 
@@ -1783,7 +1783,7 @@ example.com"></textarea>
         // Update statistics with better error handling
         async function updateStats() {
             try {
-                const url = `${API_URL}?path=stats`;
+                const url = `${API_URL}?path=stats&_=${Date.now()}`;
                 
                 const response = await fetch(url);
                 if (!response.ok) {
@@ -2231,18 +2231,25 @@ example.com"></textarea>
         // Delete monitor
         async function deleteMonitor(id) {
             if (!confirm('Are you sure you want to delete this monitor?')) return;
-            
+
             try {
                 const response = await fetch(`${API_URL}?path=monitors/${id}`, {
                     method: 'DELETE'
                 });
-                
-                if (!response.ok) {
+
+                if (!response.ok && response.status !== 204) {
                     throw new Error(`Failed to delete monitor: ${response.status}`);
                 }
-                
+
+                // Remove from local array immediately so UI updates even if
+                // the subsequent loadMonitors fetch returns a cached list
+                monitors = monitors.filter(m => m.id !== id);
+                updateUI();
+                updateStats();
                 showAlert('success', 'Monitor deleted successfully');
-                loadMonitors();
+
+                // Also refresh from server to stay in sync
+                setTimeout(loadMonitors, 500);
             } catch (error) {
                 console.error('Error deleting monitor:', error);
                 showAlert('error', `Failed to delete monitor: ${error.message}`);
