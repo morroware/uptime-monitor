@@ -1475,6 +1475,12 @@ example.com"></textarea>
             }
             
             try {
+                // Save expanded card states before rebuilding DOM
+                const expandedCards = new Set();
+                document.querySelectorAll('.monitor-card.expanded').forEach(card => {
+                    expandedCards.add(card.id);
+                });
+
                 monitorsList.innerHTML = monitors.map(monitor => {
                     const config = monitor.config || {};
                     const status = monitor.status || 'unknown';
@@ -1594,6 +1600,11 @@ example.com"></textarea>
                     });
                 });
                 
+                // Restore expanded card states after DOM rebuild
+                expandedCards.forEach(cardId => {
+                    toggleCard(cardId, true);
+                });
+
                 updateVisibility();
             } catch (error) {
                 console.error('Error updating UI:', error);
